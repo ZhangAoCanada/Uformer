@@ -5,6 +5,7 @@ import torch
 from utils import is_png_file, load_img, Augment_RGB_torch
 import torch.nn.functional as F
 import random
+import re
 
 augment   = Augment_RGB_torch()
 transforms_aug = [method for method in dir(augment) if callable(getattr(augment, method)) if not method.startswith('_')] 
@@ -16,18 +17,32 @@ class DataLoaderTrain(Dataset):
 
         self.target_transform = target_transform
         
-        gt_dir = 'groundtruth'
-        input_dir = 'input'
-        
-        clean_files = sorted(os.listdir(os.path.join(rgb_dir, gt_dir)))
-        noisy_files = sorted(os.listdir(os.path.join(rgb_dir, input_dir)))
-        
-        self.clean_filenames = [os.path.join(rgb_dir, gt_dir, x) for x in clean_files if is_png_file(x)]
-        self.noisy_filenames = [os.path.join(rgb_dir, input_dir, x)       for x in noisy_files if is_png_file(x)]
+        gt_dir = 'gt'
+        input_dir = 'data'
+
+        self.noisy_filenames, self.clean_filenames = self.getImageNames(rgb_dir, input_dir, gt_dir)
         
         self.img_options=img_options
 
         self.tar_size = len(self.clean_filenames)  # get the size of target
+    
+    def getImageNames(self, root_dir, image_dir, gt_dir):
+        input_dir = os.path.join(root_dir, image_dir)
+        output_dir = os.path.join(root_dir, gt_dir)
+        image_names_tmp = []
+        image_names = []
+        gt_names = []
+        for file in os.listdir(input_dir):
+            if file.endswith(".png"):
+                in_name = os.path.join(input_dir, file)
+                image_names_tmp.append(in_name)
+        for in_name in image_names_tmp:
+            image_ind = re.findall(r'\d+', in_name)[0]
+            gt_name = os.path.join(output_dir, image_ind + "_clean.png")
+            if os.path.exists(gt_name):
+                image_names.append(in_name)
+                gt_names.append(gt_name)
+        return image_names, gt_names
 
     def __len__(self):
         return self.tar_size
@@ -127,18 +142,30 @@ class DataLoaderVal(Dataset):
 
         self.target_transform = target_transform
 
-        gt_dir = 'groundtruth'
-        input_dir = 'input'
+        gt_dir = 'gt'
+        input_dir = 'data'
         
-        clean_files = sorted(os.listdir(os.path.join(rgb_dir, gt_dir)))
-        noisy_files = sorted(os.listdir(os.path.join(rgb_dir, input_dir)))
-
-
-        self.clean_filenames = [os.path.join(rgb_dir, gt_dir, x) for x in clean_files if is_png_file(x)]
-        self.noisy_filenames = [os.path.join(rgb_dir, input_dir, x) for x in noisy_files if is_png_file(x)]
-        
+        self.noisy_filenames, self.clean_filenames = self.getImageNames(rgb_dir, input_dir, gt_dir)
 
         self.tar_size = len(self.clean_filenames)  
+
+    def getImageNames(self, root_dir, image_dir, gt_dir):
+        input_dir = os.path.join(root_dir, image_dir)
+        output_dir = os.path.join(root_dir, gt_dir)
+        image_names_tmp = []
+        image_names = []
+        gt_names = []
+        for file in os.listdir(input_dir):
+            if file.endswith(".png"):
+                in_name = os.path.join(input_dir, file)
+                image_names_tmp.append(in_name)
+        for in_name in image_names_tmp:
+            image_ind = re.findall(r'\d+', in_name)[0]
+            gt_name = os.path.join(output_dir, image_ind + "_clean.png")
+            if os.path.exists(gt_name):
+                image_names.append(in_name)
+                gt_names.append(gt_name)
+        return image_names, gt_names
 
     def __len__(self):
         return self.tar_size
