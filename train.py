@@ -132,7 +132,7 @@ with torch.no_grad():
         input_ = data_val[1].cuda()
         filenames = data_val[2]
         psnr_val_rgb.append(utils.batch_PSNR(input_, target, False).item())
-    psnr_val_rgb = sum(psnr_val_rgb)/len_valset
+    psnr_val_rgb = sum(psnr_val_rgb)/(len_valset+1e-10)
     print('Input & GT (PSNR) -->%.4f dB'%(psnr_val_rgb))
 
 ######### train ###########
