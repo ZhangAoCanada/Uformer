@@ -38,6 +38,7 @@ from torch.optim.lr_scheduler import StepLR
 from timm.utils import NativeScaler
 
 from utils.loader import  get_training_data,get_validation_data
+from torch.utils.tensorboard import SummaryWriter
 
 ######### Logs dir ###########
 log_dir = os.path.join(dir_name,'logs', opt.arch+opt.env)
@@ -143,6 +144,9 @@ best_iter = 0
 eval_now = len(train_loader)//4
 print("\nEvaluation after every {} Iterations !!!\n".format(eval_now))
 
+writer = SummaryWriter("./logs/")
+count = 0
+
 loss_scaler = NativeScaler()
 torch.cuda.empty_cache()
 for epoch in range(start_epoch, opt.nepoch + 1):
@@ -167,37 +171,46 @@ for epoch in range(start_epoch, opt.nepoch + 1):
                 loss, optimizer,parameters=model_restoration.parameters())
         epoch_loss +=loss.item()
 
+        count += 1
+        writer.add_scalar('Loss/train', loss.item(), count)
+
         #### Evaluation ####
-        if (i+1)%eval_now==0 and i>0:
-            with torch.no_grad():
-                model_restoration.eval()
-                psnr_val_rgb = []
-                for ii, data_val in enumerate((val_loader), 0):
-                    target = data_val[0].cuda()
-                    input_ = data_val[1].cuda()
-                    filenames = data_val[2]
-                    with torch.cuda.amp.autocast():
-                        restored = model_restoration(input_)
-                    restored = torch.clamp(restored,0,1)  
-                    psnr_val_rgb.append(utils.batch_PSNR(restored, target, False).item())
+        # if (i+1)%eval_now==0 and i>0:
+    with torch.no_grad():
+        model_restoration.eval()
+        psnr_val_rgb = []
+        for ii, data_val in enumerate((val_loader), 0):
+            target = data_val[0].cuda()
+            input_ = data_val[1].cuda()
+            filenames = data_val[2]
+            with torch.cuda.amp.autocast():
+                restored = model_restoration(input_)
+            restored = torch.clamp(restored,0,1)  
+            psnr_val_rgb.append(utils.batch_PSNR(restored, target, False).item())
 
-                psnr_val_rgb = sum(psnr_val_rgb)/len_valset
-                
-                if psnr_val_rgb > best_psnr:
-                    best_psnr = psnr_val_rgb
-                    best_epoch = epoch
-                    best_iter = i 
-                    torch.save({'epoch': epoch, 
-                                'state_dict': model_restoration.state_dict(),
-                                'optimizer' : optimizer.state_dict()
-                                }, os.path.join(model_dir,"model_best.pth"))
+        psnr_val_rgb = sum(psnr_val_rgb)/len_valset
+        
+        if psnr_val_rgb > best_psnr:
+            best_psnr = psnr_val_rgb
+            best_epoch = epoch
+            best_iter = i 
+            torch.save({'epoch': epoch, 
+                        'state_dict': model_restoration.state_dict(),
+                        'optimizer' : optimizer.state_dict()
+                        }, os.path.join(model_dir,"model_best.pth"))
+        torch.save({'epoch': epoch, 
+                    'state_dict': model_restoration.state_dict(),
+                    'optimizer' : optimizer.state_dict()
+                    }, os.path.join(model_dir,"model_latest.pth"))
 
-                print("[Ep %d it %d\t PSNR SIDD: %.4f\t] ----  [best_Ep_SIDD %d best_it_SIDD %d Best_PSNR_SIDD %.4f] " % (epoch, i, psnr_val_rgb,best_epoch,best_iter,best_psnr))
-                with open(logname,'a') as f:
-                    f.write("[Ep %d it %d\t PSNR SIDD: %.4f\t] ----  [best_Ep_SIDD %d best_it_SIDD %d Best_PSNR_SIDD %.4f] " \
-                        % (epoch, i, psnr_val_rgb,best_epoch,best_iter,best_psnr)+'\n')
-                model_restoration.train()
-                torch.cuda.empty_cache()
+        print("[Ep %d it %d\t PSNR SIDD: %.4f\t] ----  [best_Ep_SIDD %d best_it_SIDD %d Best_PSNR_SIDD %.4f] " % (epoch, i, psnr_val_rgb,best_epoch,best_iter,best_psnr))
+        writer.add_scalar("Vlidation/PSNR", psnr_val_rgb, count)
+        writer.add_scalar("Vlidation/PSNR", psnr_val_rgb, count)
+        with open(logname,'a') as f:
+            f.write("[Ep %d it %d\t PSNR SIDD: %.4f\t] ----  [best_Ep_SIDD %d best_it_SIDD %d Best_PSNR_SIDD %.4f] " \
+                % (epoch, i, psnr_val_rgb,best_epoch,best_iter,best_psnr)+'\n')
+        model_restoration.train()
+        torch.cuda.empty_cache()
     scheduler.step()
     
     print("------------------------------------------------------------------")
