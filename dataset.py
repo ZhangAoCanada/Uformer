@@ -177,14 +177,14 @@ class DataLoaderVal(Dataset):
         noisy = np.float32(load_img(self.noisy_filenames[tar_index]))
 
         w, h, _ = clean.shape
-        if h > w and h > 1024:
-            w = int(np.ceil(w*1024/h))
-            h = 1024
-        elif h < w and w > 1024:
-            h = int(np.ceil(h*1024/w))
-            w = 1024
-        w = int(64*np.ceil(w/64.0))
-        h = int(64*np.ceil(h/64.0))
+        # if h > w and h > 1024:
+        #     w = int(np.ceil(w*1024/h))
+        #     h = 1024
+        # elif h < w and w > 1024:
+        #     h = int(np.ceil(h*1024/w))
+        #     w = 1024
+        w = int(16*np.ceil(w/16.0))
+        h = int(16*np.ceil(h/16.0))
         clean = cv2.resize(clean, (h, w)) 
         noisy = cv2.resize(noisy, (h, w))
 
