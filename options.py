@@ -46,8 +46,7 @@ class Options():
         
         # args for training
         parser.add_argument('--train_ps', type=int, default=256, help='patch size of training sample')
-        parser.add_argument('--resume', action='store_true',default=False)
-        parser.add_argument('--pretrained', action='load pretrained weights',default=True)
+        parser.add_argument('--resume', action='store_true',default=True)
         parser.add_argument('--train_dir', type=str, default ='/content/drive/MyDrive/DERAIN/train',  help='dir of train data')
         parser.add_argument('--val_dir', type=str, default ='/content/drive/MyDrive/DERAIN/test',  help='dir of train data')
         parser.add_argument('--warmup', action='store_true', default=False, help='warmup') 

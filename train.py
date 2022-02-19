@@ -79,7 +79,7 @@ model_restoration = torch.nn.DataParallel (model_restoration)
 model_restoration.cuda()
 
 ######### Resume ###########
-if opt.pretrained:
+if opt.resume and os.path.exists(opt.pretrain_weights):
     path_chk_rest = opt.pretrain_weights
     utils.load_checkpoint(model_restoration,path_chk_rest)
     step = 50
