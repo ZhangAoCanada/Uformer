@@ -1,3 +1,4 @@
+from cv2 import sqrBoxFilter
 import numpy as np
 import os
 from torch.utils.data import Dataset
@@ -156,12 +157,12 @@ class DataLoaderVal(Dataset):
         image_names = []
         gt_names = []
         for file in os.listdir(input_dir):
-            if file.endswith(".png"):
+            if file.endswith(".jpg"):
                 in_name = os.path.join(input_dir, file)
                 image_names_tmp.append(in_name)
         for in_name in image_names_tmp:
             image_ind = re.findall(r'\d+', in_name)[0]
-            gt_name = os.path.join(output_dir, image_ind + "_clean.png")
+            gt_name = os.path.join(output_dir, image_ind + "_clean.jpg")
             if os.path.exists(gt_name):
                 image_names.append(in_name)
                 gt_names.append(gt_name)
@@ -176,18 +177,17 @@ class DataLoaderVal(Dataset):
         clean = np.float32(load_img(self.clean_filenames[tar_index]))
         noisy = np.float32(load_img(self.noisy_filenames[tar_index]))
 
-        # w, h, _ = clean.shape
-        # if h > w and h > 1024:
-            # w = int(np.ceil(w*1024/h))
-            # h = 1024
-        # elif h < w and w > 1024:
-            # h = int(np.ceil(h*1024/w))
-            # w = 1024
-        # w = int(128*np.ceil(w/128.0))
-        # h = int(128*np.ceil(h/128.0))
-        h, w = 256, 256
-        clean = cv2.resize(clean, (h, w)) 
-        noisy = cv2.resize(noisy, (h, w))
+        w, h, _ = clean.shape
+        square_size = max(w, h)
+        h_pad, w_pad = square_size - h, square_size - w
+        h_half = h_pad // 2
+        w_half = w_pad // 2
+
+        clean = np.pad(clean, ((w_half, w_pad - w_half), (h_half, h_pad - h_half), (0, 0)), 'constant', constant_values=0)
+        noisy = np.pad(noisy, ((w_half, w_pad - w_half), (h_half, h_pad - h_half), (0, 0)), 'constant', constant_values=0)
+
+        # clean = cv2.resize(clean, (h, w)) 
+        # noisy = cv2.resize(noisy, (h, w))
 
         clean = torch.from_numpy(clean)
         noisy = torch.from_numpy(noisy)
