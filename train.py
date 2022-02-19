@@ -206,9 +206,9 @@ for epoch in range(start_epoch, opt.nepoch + 1):
         print("[Ep %d it %d\t PSNR SIDD: %.4f\t] ----  [best_Ep_SIDD %d best_it_SIDD %d Best_PSNR_SIDD %.4f] " % (epoch, i, psnr_val_rgb,best_epoch,best_iter,best_psnr))
         writer.add_scalar("Vlidation/PSNR", psnr_val_rgb, count)
         writer.add_scalar("Vlidation/PSNR", psnr_val_rgb, count)
-        with open(logname,'a') as f:
-            f.write("[Ep %d it %d\t PSNR SIDD: %.4f\t] ----  [best_Ep_SIDD %d best_it_SIDD %d Best_PSNR_SIDD %.4f] " \
-                % (epoch, i, psnr_val_rgb,best_epoch,best_iter,best_psnr)+'\n')
+        # with open(logname,'a') as f:
+        #     f.write("[Ep %d it %d\t PSNR SIDD: %.4f\t] ----  [best_Ep_SIDD %d best_it_SIDD %d Best_PSNR_SIDD %.4f] " \
+        #         % (epoch, i, psnr_val_rgb,best_epoch,best_iter,best_psnr)+'\n')
         model_restoration.train()
         torch.cuda.empty_cache()
     scheduler.step()
