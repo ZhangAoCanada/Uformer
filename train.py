@@ -177,6 +177,7 @@ for epoch in range(start_epoch, opt.nepoch + 1):
                     input_ = data_val[1].cuda()
                     filenames = data_val[2]
                     with torch.cuda.amp.autocast():
+                        print("[DEBUGGING]: ", input_.shape)
                         restored = model_restoration(input_)
                     restored = torch.clamp(restored,0,1)  
                     psnr_val_rgb.append(utils.batch_PSNR(restored, target, False).item())
