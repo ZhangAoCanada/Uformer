@@ -156,12 +156,12 @@ class DataLoaderVal(Dataset):
         image_names = []
         gt_names = []
         for file in os.listdir(input_dir):
-            if file.endswith(".png"):
+            if file.endswith(".jpg"):
                 in_name = os.path.join(input_dir, file)
                 image_names_tmp.append(in_name)
         for in_name in image_names_tmp:
             image_ind = re.findall(r'\d+', in_name)[0]
-            gt_name = os.path.join(output_dir, image_ind + "_clean.png")
+            gt_name = os.path.join(output_dir, image_ind + "_clean.jpg")
             if os.path.exists(gt_name):
                 image_names.append(in_name)
                 gt_names.append(gt_name)
@@ -176,15 +176,16 @@ class DataLoaderVal(Dataset):
         clean = np.float32(load_img(self.clean_filenames[tar_index]))
         noisy = np.float32(load_img(self.noisy_filenames[tar_index]))
 
-        w, h, _ = clean.shape
-        if h > w and h > 1024:
-            w = int(np.ceil(w*1024/h))
-            h = 1024
-        elif h < w and w > 1024:
-            h = int(np.ceil(h*1024/w))
-            w = 1024
-        w = int(128*np.ceil(w/128.0))
-        h = int(128*np.ceil(h/128.0))
+        # w, h, _ = clean.shape
+        # if h > w and h > 1024:
+            # w = int(np.ceil(w*1024/h))
+            # h = 1024
+        # elif h < w and w > 1024:
+            # h = int(np.ceil(h*1024/w))
+            # w = 1024
+        # w = int(16*np.ceil(w/16.0))
+        # h = int(16*np.ceil(h/16.0))
+        h, w = 720, 480
         clean = cv2.resize(clean, (h, w)) 
         noisy = cv2.resize(noisy, (h, w))
 
