@@ -178,7 +178,8 @@ class DataLoaderVal(Dataset):
         noisy = np.float32(load_img(self.noisy_filenames[tar_index]))
 
         w, h, _ = clean.shape
-        square_size = max(w, h)
+        # square_size = max(w, h)
+        square_size = 768
         h_pad, w_pad = square_size - h, square_size - w
         h_half = h_pad // 2
         w_half = w_pad // 2
