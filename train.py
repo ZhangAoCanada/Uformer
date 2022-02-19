@@ -79,7 +79,15 @@ model_restoration = torch.nn.DataParallel (model_restoration)
 model_restoration.cuda()
 
 ######### Resume ###########
-if opt.resume:
+if opt.pretrained:
+    path_chk_rest = opt.pretrain_weights
+    utils.load_checkpoint(model_restoration,path_chk_rest)
+    step = 50
+    scheduler = StepLR(optimizer, step_size=step, gamma=0.5)
+    scheduler.step()
+    print("-------- loading pre-trained weights --------")
+
+elif opt.resume:
     path_chk_rest = opt.pretrain_weights
     utils.load_checkpoint(model_restoration,path_chk_rest)
     start_epoch = utils.load_start_epoch(path_chk_rest) + 1

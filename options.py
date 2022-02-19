@@ -12,7 +12,7 @@ class Options():
         parser.add_argument('--train_workers', type=int, default=4, help='train_dataloader workers')
         parser.add_argument('--eval_workers', type=int, default=4, help='eval_dataloader workers')
         parser.add_argument('--dataset', type=str, default ='SIDD')
-        parser.add_argument('--pretrain_weights',type=str, default='./logs/Uformer32/models/model_best.pth', help='path of pretrained_weights')
+        parser.add_argument('--pretrain_weights',type=str, default='./logs/Uformer_/models/original_model.pth', help='path of pretrained_weights')
         parser.add_argument('--optimizer', type=str, default ='adamw', help='optimizer for training')
         parser.add_argument('--lr_initial', type=float, default=0.0002, help='initial learning rate')
         parser.add_argument('--weight_decay', type=float, default=0.02, help='weight decay')
@@ -47,6 +47,7 @@ class Options():
         # args for training
         parser.add_argument('--train_ps', type=int, default=128, help='patch size of training sample')
         parser.add_argument('--resume', action='store_true',default=False)
+        parser.add_argument('--pretrained', action='load pretrained weights',default=True)
         parser.add_argument('--train_dir', type=str, default ='/content/drive/MyDrive/DERAIN/train',  help='dir of train data')
         parser.add_argument('--val_dir', type=str, default ='/content/drive/MyDrive/DERAIN/test',  help='dir of train data')
         parser.add_argument('--warmup', action='store_true', default=False, help='warmup') 
