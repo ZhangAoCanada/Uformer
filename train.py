@@ -117,7 +117,8 @@ train_loader = DataLoader(dataset=train_dataset, batch_size=opt.batch_size, shuf
         num_workers=opt.train_workers, pin_memory=True, drop_last=False)
 
 val_dataset = get_validation_data(opt.val_dir)
-val_loader = DataLoader(dataset=val_dataset, batch_size=opt.batch_size, shuffle=False, 
+# val_loader = DataLoader(dataset=val_dataset, batch_size=opt.batch_size, shuffle=False, 
+val_loader = DataLoader(dataset=val_dataset, batch_size=1, shuffle=False, 
         num_workers=opt.eval_workers, pin_memory=False, drop_last=False)
 
 len_trainset = train_dataset.__len__()
