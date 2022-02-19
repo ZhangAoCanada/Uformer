@@ -5,7 +5,7 @@ import torch
 from utils import is_png_file, load_img, Augment_RGB_torch
 import torch.nn.functional as F
 import random
-import re
+import re, cv2
 
 augment   = Augment_RGB_torch()
 transforms_aug = [method for method in dir(augment) if callable(getattr(augment, method)) if not method.startswith('_')] 
@@ -173,9 +173,23 @@ class DataLoaderVal(Dataset):
     def __getitem__(self, index):
         tar_index   = index % self.tar_size
         
+        clean = np.float32(load_img(self.clean_filenames[tar_index]))
+        noisy = np.float32(load_img(self.noisy_filenames[tar_index]))
 
-        clean = torch.from_numpy(np.float32(load_img(self.clean_filenames[tar_index])))
-        noisy = torch.from_numpy(np.float32(load_img(self.noisy_filenames[tar_index])))
+        w, h, _ = clean.shape
+        if h > w and h > 1024:
+            w = int(np.ceil(w*1024/h))
+            h = 1024
+        elif h < w and w > 1024:
+            h = int(np.ceil(h*1024/w))
+            w = 1024
+        w = int(16*np.ceil(w/16.0))
+        h = int(16*np.ceil(h/16.0))
+        clean = cv2.resize(clean, (h, w)) 
+        noisy = cv2.resize(noisy, (h, w))
+
+        clean = torch.from_numpy(clean)
+        noisy = torch.from_numpy(noisy)
                 
         clean_filename = os.path.split(self.clean_filenames[tar_index])[-1]
         noisy_filename = os.path.split(self.noisy_filenames[tar_index])[-1]
