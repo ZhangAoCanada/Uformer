@@ -156,12 +156,12 @@ class DataLoaderVal(Dataset):
         image_names = []
         gt_names = []
         for file in os.listdir(input_dir):
-            if file.endswith(".jpg"):
+            if file.endswith(".png"):
                 in_name = os.path.join(input_dir, file)
                 image_names_tmp.append(in_name)
         for in_name in image_names_tmp:
             image_ind = re.findall(r'\d+', in_name)[0]
-            gt_name = os.path.join(output_dir, image_ind + "_clean.jpg")
+            gt_name = os.path.join(output_dir, image_ind + "_clean.png")
             if os.path.exists(gt_name):
                 image_names.append(in_name)
                 gt_names.append(gt_name)
