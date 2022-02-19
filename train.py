@@ -13,9 +13,6 @@ opt = options.Options().init(argparse.ArgumentParser(description='image denoisin
 print(opt)
 
 import utils
-######### Set GPUs ###########
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = opt.gpu
 import torch
 torch.backends.cudnn.benchmark = True
 
@@ -43,7 +40,7 @@ from timm.utils import NativeScaler
 from utils.loader import  get_training_data,get_validation_data
 
 ######### Logs dir ###########
-log_dir = os.path.join(dir_name,'log', opt.arch+opt.env)
+log_dir = os.path.join(dir_name,'logs', opt.arch+opt.env)
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 logname = os.path.join(log_dir, datetime.datetime.now().isoformat()+'.txt') 
