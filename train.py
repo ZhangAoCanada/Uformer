@@ -79,7 +79,21 @@ model_restoration = torch.nn.DataParallel (model_restoration)
 model_restoration.cuda()
 
 ######### Resume ###########
-if opt.resume and os.path.exists(opt.pretrain_weights):
+if opt.resume and os.path.exists("./logs/Uformer_/models/model_best.pth"):
+    path_chk_rest = opt.pretrain_weights
+    utils.load_checkpoint(model_restoration,path_chk_rest)
+    start_epoch = utils.load_start_epoch(path_chk_rest) + 1
+    lr = utils.load_optim(optimizer, path_chk_rest)
+
+    for p in optimizer.param_groups: p['lr'] = lr
+    warmup = False
+    new_lr = lr
+    print('------------------------------------------------------------------------------')
+    print("==> Resuming Training model best with learning rate:",new_lr)
+    print('------------------------------------------------------------------------------')
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, opt.nepoch-start_epoch+1, eta_min=1e-6)
+
+elif opt.resume and os.path.exists(opt.pretrain_weights):
     path_chk_rest = opt.pretrain_weights
     utils.load_checkpoint(model_restoration,path_chk_rest)
     step = 50
@@ -153,7 +167,7 @@ eval_now = len(train_loader)//4
 print("\nEvaluation after every {} Iterations !!!\n".format(eval_now))
 
 writer = SummaryWriter("./logs/")
-count = 0
+count = 5704
 
 loss_scaler = NativeScaler()
 torch.cuda.empty_cache()
