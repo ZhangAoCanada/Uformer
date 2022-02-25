@@ -79,7 +79,7 @@ model_restoration = torch.nn.DataParallel (model_restoration)
 model_restoration.cuda()
 
 ######### Resume ###########
-if opt.resume and os.path.exists("./logs/Uformer_/models/model_best.pth"):
+if opt.resume and os.path.exists("./logs/Uformer_/models/model_latest.pth"):
     path_chk_rest = opt.pretrain_weights
     utils.load_checkpoint(model_restoration,path_chk_rest)
     start_epoch = utils.load_start_epoch(path_chk_rest) + 1
@@ -167,7 +167,7 @@ eval_now = len(train_loader)//4
 print("\nEvaluation after every {} Iterations !!!\n".format(eval_now))
 
 writer = SummaryWriter("./logs/")
-count = 5704
+count = 15680
 
 loss_scaler = NativeScaler()
 torch.cuda.empty_cache()
