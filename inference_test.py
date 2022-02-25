@@ -29,12 +29,7 @@ import cv2, time
 
 # ----------------- from TransWeather ------------------
 def calc_psnr(im1, im2):
-    print("-----------------------")
-    print(im1.shape, im1.max(), im1.min())
-    print(im2.shape, im2.max(), im2.min())
     im1, im2 = img_as_ubyte(im1), img_as_ubyte(im2)
-    print(im1.shape, im1.max(), im1.min())
-    print(im2.shape, im2.max(), im2.min())
     im1_y = cv2.cvtColor(im1, cv2.COLOR_BGR2YCR_CB)[:, :, 0]
     im2_y = cv2.cvtColor(im2, cv2.COLOR_BGR2YCR_CB)[:, :, 0]
     ans = [compare_psnr(im1_y, im2_y)]
