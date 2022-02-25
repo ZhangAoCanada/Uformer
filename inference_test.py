@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 from ptflops import get_model_complexity_info
 
-sys.path.append('/home/ao/image_derain/Uformer')
+sys.path.append('/content/drive/MyDrive/DERAIN/Uformer')
 
 import scipy.io as sio
 from utils.loader import get_validation_data
@@ -39,7 +39,7 @@ def load_checkpoint(model, weights):
         model.load_state_dict(new_state_dict)
 
 parser = argparse.ArgumentParser(description='RGB denoising evaluation on the validation set of SIDD')
-parser.add_argument('--input_dir', default='/mnt/d/DATASET/Derain_DATA/test/',
+parser.add_argument('--input_dir', default='/content/drive/MyDrive/DERAIN/test/',
     type=str, help='Directory of validation images')
 parser.add_argument('--result_dir', default='./results/',
     type=str, help='Directory for results')
