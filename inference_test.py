@@ -23,6 +23,23 @@ from skimage import img_as_float32, img_as_ubyte
 from skimage.metrics import peak_signal_noise_ratio as psnr_loss
 from skimage.metrics import structural_similarity as ssim_loss
 from collections import OrderedDict
+from skimage.measure import compare_psnr, compare_ssim
+import cv2, time
+
+
+# ----------------- from TransWeather ------------------
+def calc_psnr(im1, im2):
+    im1_y = cv2.cvtColor(im1, cv2.COLOR_BGR2YCR_CB)[:, :, 0]
+    im2_y = cv2.cvtColor(im2, cv2.COLOR_BGR2YCR_CB)[:, :, 0]
+    ans = [compare_psnr(im1_y, im2_y)]
+    return ans
+
+def calc_ssim(im1, im2):
+    im1_y = cv2.cvtColor(im1, cv2.COLOR_BGR2YCR_CB)[:, :, 0]
+    im2_y = cv2.cvtColor(im2, cv2.COLOR_BGR2YCR_CB)[:, :, 0]
+    ans = [compare_ssim(im1_y, im2_y)]
+    return ans
+# ------------------------------------------------------
 
 
 def load_checkpoint(model, weights):
@@ -104,8 +121,11 @@ def expand2square(timg,factor=16.0):
 
 
 with torch.no_grad():
-    psnr_val_rgb = []
-    ssim_val_rgb = []
+    all_inference_time = []
+    psnr_list = []
+    ssim_list = []
+    # psnr_val_rgb = []
+    # ssim_val_rgb = []
     for ii, data_test in enumerate(tqdm(test_loader), 0):
 
         ## TEST THE EFFECT IN DIFFERENT SIZE
@@ -127,16 +147,31 @@ with torch.no_grad():
 
         # rgb_restored = model_restoration(rgb_noisy, 1 - mask)
         # rgb_restored = torch.masked_select(rgb_restored,mask.bool()).reshape(1,3,rgb_gt.shape[0],rgb_gt.shape[1])
+        start_time = time.time()
         rgb_restored = model_restoration(rgb_noisy)
         rgb_restored = torch.clamp(rgb_restored,0,1).cpu().numpy().squeeze().transpose((1,2,0))
+        all_inference_time.append(time.time() - start_time)
 
         # psnr_val_rgb.append(psnr_loss(rgb_restored, rgb_gt))
         # ssim_val_rgb.append(ssim_loss(rgb_restored, rgb_gt, multichannel=True))
 
         # if args.save_images:
+
+        print("------------------")
+        print(rgb_restored.shape, rgb_restored.max(), rgb_restored.min())
+        print(rgb_gt.shape, rgb_gt.max(), rgb_gt.min())
+        # --- Calculate the average PSNR --- #
+        psnr_list.extend(calc_psnr(rgb_restored, rgb_gt))
+        # --- Calculate the average SSIM --- #
+        ssim_list.extend(calc_ssim(rgb_restored, rgb_gt))
+
         image_cv = img_as_ubyte(rgb_restored)
         utils.save_img(os.path.join(args.result_dir,filenames[0]), img_as_ubyte(rgb_restored))
 
-psnr_val_rgb = sum(psnr_val_rgb)/(len(test_dataset)+1e-10)
-ssim_val_rgb = sum(ssim_val_rgb)/(len(test_dataset)+1e-10)
-print("PSNR: %f, SSIM: %f " %(psnr_val_rgb,ssim_val_rgb))
+# psnr_val_rgb = sum(psnr_val_rgb)/(len(test_dataset)+1e-10)
+# ssim_val_rgb = sum(ssim_val_rgb)/(len(test_dataset)+1e-10)
+# print("PSNR: %f, SSIM: %f " %(psnr_val_rgb,ssim_val_rgb))
+
+avr_psnr = sum(psnr_list) / (len(psnr_list) + 1e-10)
+avr_ssim = sum(ssim_list) / (len(ssim_list) + 1e-10)
+print("[RESULTS] PSNR: {:.4f}, SSIM: {:.4f}, Average time: {:.4f} ms".format(avr_psnr, avr_ssim, np.mean(all_inference_time)*1000))
