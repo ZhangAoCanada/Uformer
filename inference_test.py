@@ -152,6 +152,7 @@ with torch.no_grad():
         rgb_restored = torch.clamp(rgb_restored,0,1).cpu().numpy().squeeze().transpose((1,2,0))
         all_inference_time.append(time.time() - start_time)
 
+        rgb_gt = rgb_gt.cpu().numpy().squeeze().transpose((1,2,0))
         # psnr_val_rgb.append(psnr_loss(rgb_restored, rgb_gt))
         # ssim_val_rgb.append(ssim_loss(rgb_restored, rgb_gt, multichannel=True))
 
