@@ -167,7 +167,7 @@ eval_now = len(train_loader)//4
 print("\nEvaluation after every {} Iterations !!!\n".format(eval_now))
 
 writer = SummaryWriter("./logs/")
-count = 15680
+count = 0
 
 loss_scaler = NativeScaler()
 torch.cuda.empty_cache()
