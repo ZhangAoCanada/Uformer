@@ -25,6 +25,7 @@ from skimage.metrics import structural_similarity as ssim_loss
 from collections import OrderedDict
 from skimage.measure import compare_psnr, compare_ssim
 import cv2, time
+from torchinfo import summary
 
 
 # ----------------- from TransWeather ------------------
@@ -97,6 +98,7 @@ test_dataset = get_validation_data(args.input_dir)
 test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False, num_workers=8, drop_last=False)
 
 model_restoration= utils.get_arch(args)
+summary(model_restoration)
 model_restoration = torch.nn.DataParallel(model_restoration)
 
 load_checkpoint(model_restoration,args.weights)
